@@ -10,8 +10,8 @@ category, so getting data for high-level categories might take long. There is a 
 Queries to wikipedia API are also throttled by `nodemw` package.
 
 You can get total page views for any period from 1 to 90 days. Note, however,
-that stats.grok.se return values either for 30, 60 or 90 days. Data is then
-sliced to required period. This also means that getting page views for 31 day
+that stats.grok.se returns values either for 30, 60 or 90 days. Data is then
+sliced to required period. This also means that getting page views for 31 days
 takes significantly longer than getting page views for 30 days.
 
 
