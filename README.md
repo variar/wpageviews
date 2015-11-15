@@ -1,4 +1,6 @@
 # wpageviews
+[![npm version](https://badge.fury.io/js/wpageviews.svg)](https://badge.fury.io/js/wpageviews)
+
 Simple module which helps to get monthly page views for wikipedia pages
 belonging to some category and all its subcategories using data from http://stats.grok.se.
 
