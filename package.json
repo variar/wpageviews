@@ -1,6 +1,6 @@
 {
   "name": "wpageviews",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Get wikipedia page view statistics for all pages in chosen category and subcategories",
   "main": "index.js",
   "scripts": {
