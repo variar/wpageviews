@@ -1,0 +1,39 @@
+{
+  "name": "wpageviews",
+  "version": "0.1.0",
+  "description": "Get wikipedia page view statistics for all pages in chosen category and subcategories",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test",
+    "coverage": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- --ui bdd -R spec -t 5000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/variar/wpageviews.git"
+  },
+  "keywords": [
+    "wiki",
+    "mediawiki",
+    "statistics"
+  ],
+  "author": "Anton Filimonov <anton.filimonov@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/variar/wpageviews/issues"
+  },
+  "homepage": "https://github.com/variar/wpageviews#readme",
+  "dependencies": {
+    "axios": "^0.7.0",
+    "nodemw": "^0.7.5",
+    "q": "^1.4.1",
+    "random-js": "^1.0.8",
+    "urlencode": "^1.1.0"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "istanbul": "^0.4.0",
+    "mocha": "^2.3.3",
+    "rewire": "^2.4.0",
+    "sinon": "^1.17.2"
+  }
+}
