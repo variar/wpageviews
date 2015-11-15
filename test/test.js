@@ -18,14 +18,79 @@ describe('create page views collector', function() {
     it('should use en server', function() {
       var pageViewsCollector = new PageViews();
       pageViewsCollector.wikiClient.server.should.equal('en.wikipedia.org');
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest30/');
     });
   });
 
-  describe('with not default params', function() {
-    it('should use passed server', function() {
-      var params = {server: 'ru.wikipedia.org'};
+  describe('with not default lang', function() {
+    it('should use passed lang for wiki and stats', function() {
+      var params = {lang: 'ru'};
       var pageViewsCollector = new PageViews(params);
-      pageViewsCollector.wikiClient.server.should.equal(params.server);
+      pageViewsCollector.wikiClient.server.should.equal('ru.wikipedia.org');
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/ru/latest30/');
+    });
+  });
+
+  describe('with not default period', function() {
+    it('should provide this period', function() {
+      var params = {period: 7};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsPeriod.should.equal(params.period);
+    });
+  });
+
+  describe('with period < 30', function() {
+    it('should use latest30 endpoint', function() {
+      var params = {period: 7};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest30/');
+    });
+  });
+
+  describe('with period = 30', function() {
+    it('should use latest30 endpoint', function() {
+      var params = {period: 30};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest30/');
+    });
+  });
+
+  describe('with  30<period<60', function() {
+    it('should use latest60 endpoint', function() {
+      var params = {period: 37};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest60/');
+    });
+  });
+
+  describe('with period = 60', function() {
+    it('should use latest60 endpoint', function() {
+      var params = {period: 60};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest60/');
+    });
+  });
+
+  describe('with  60<period<90', function() {
+    it('should use latest90 endpoint', function() {
+      var params = {period: 67};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest90/');
+    });
+  });
+
+  describe('with  period = 90', function() {
+    it('should use latest90 endpoint', function() {
+      var params = {period: 90};
+      var pageViewsCollector = new PageViews(params);
+      pageViewsCollector.statsEndpoint.should.equal('http://stats.grok.se/json/en/latest90/');
+    });
+  });
+
+  describe('with  period > 90', function() {
+    it('should throw', function() {
+      var params = {period: 91};
+      should.Throw(function() {new PageViews(params);});
     });
   });
 });
@@ -43,7 +108,7 @@ describe('get page views', function() {
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
     axiosStub.get = sandbox.stub(axiosStub, 'get', function(url) {
-      url.should.have.string('http://stats.grok.se/json/ru/latest30/');
+      url.should.have.string('http://stats.grok.se/json/en/latest30/');
       return Q.resolve({
         statusText: 'OK',
         data: {
@@ -168,6 +233,31 @@ describe('get page views', function() {
       .then(function(pageViews) {
         pageViews.should.have.length(2);
         pageViews[1].views.should.equal(30);
+        done();
+      })
+      .catch(done);
+    });
+  });
+
+  describe('with not default period', function() {
+    it('should get page views for that period', function(done) {
+      var pageViewsCollector = new PageViews({period:1});
+
+      pageViewsCollector.getRandomDelay = sandbox.stub(
+        pageViewsCollector, 'getRandomDelay', function() {return 0;}
+      );
+
+      pageViewsCollector.getPagesInCategory = sandbox.stub(
+        pageViewsCollector, 'getPagesInCategory',
+        function(categoryTitle) {
+          categoryTitle.should.equal('Category');
+          return Q.resolve([{ns: 0, title: 'Page'}]);
+        }
+      );
+
+      pageViewsCollector.getPageViews('Category')
+      .then(function(pageViews) {
+        pageViews[0].views.should.be.below(30);
         done();
       })
       .catch(done);

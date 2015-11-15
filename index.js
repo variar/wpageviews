@@ -9,7 +9,7 @@ var getPageViews = function(collector, page) {
   console.log('Gettings satats for page %s, delay: %d', page.title, delay);
   return Q.delay(delay).
   then(function() {
-    return axios.get('http://stats.grok.se/json/ru/latest30/' + urlencode(page.title))
+    return axios.get(collector.statsEndpoint + urlencode(page.title))
   })
   .then(function(response) {
     console.log('Stats response for page %s: %s', page.title, response.statusText);
@@ -20,7 +20,9 @@ var getPageViews = function(collector, page) {
       dailyViews.push(views.daily_views[date]);
     }
 
-    var totalViews = dailyViews.reduce(function(a, b) {return a + b;});
+    var totalViews = dailyViews
+    .slice(-collector.statsPeriod)
+    .reduce(function(a, b) {return a + b;});
 
     page.views = totalViews;
     return Q.resolve({
@@ -80,10 +82,25 @@ function PageViewsCollector(params) {
        params = {};
   }
 
+  var lang = params.lang || 'en';
   this.wikiClient = new WikiBot({
-    server: params.server || 'en.wikipedia.org',
+    server: lang + '.wikipedia.org',
     path: '/w'
   });
+
+  var period = params.period || 30;
+  var latest = '/latest30/';
+  if (period > 30 && period <= 60) {
+    latest = '/latest60/';
+  } else if (period > 60 && period <= 90) {
+    latest = '/latest90/';
+  }
+  if (period > 90) {
+    throw new Error('period must be not greater than 90 days');
+  }
+
+  this.statsEndpoint = 'http://stats.grok.se/json/' + lang + latest;
+  this.statsPeriod = period;
 
   this.getPagesInCategory = Q.nbind(
     this.wikiClient.getPagesInCategory,

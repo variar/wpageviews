@@ -18,7 +18,8 @@ Queries to wikipedia API are also throttled by `nodemw` package.
     var PageViewsCollector = require('wpageviews')
 
     var pageViewsCollector = new PageViewsCollector({
-      server: 'en.wikipedia.org'
+      lang: 'en',
+      period: 7 //valid values are from 1 to 90
     });
 
     pageViewsCollector.getPageViews('Some category')
@@ -31,7 +32,7 @@ Queries to wikipedia API are also throttled by `nodemw` package.
         // Note that these are not the categories of the page
         console.log(pageViews.categories.join());
 
-        // Total page view for last 30 days
+        // Total page view for given period
         console.log(pageViews.views);
       });
     });
