@@ -2,7 +2,7 @@
 var should = require('chai').should();
 var sinon = require('sinon');
 var rewire = require('rewire');
-var Q = require('q');
+var Promise = require('bluebird');
 
 var PageViews = rewire('../index.js');
 
@@ -109,7 +109,7 @@ describe('get page views', function() {
     sandbox = sinon.sandbox.create();
     axiosStub.get = sandbox.stub(axiosStub, 'get', function(url) {
       url.should.have.string('http://stats.grok.se/json/en/latest30/');
-      return Q.resolve({
+      return Promise.resolve({
         statusText: 'OK',
         data: {
           daily_views: {
@@ -138,7 +138,7 @@ describe('get page views', function() {
           pageViewsCollector, 'getPagesInCategory',
           function(categoryTitle) {
             categoryTitle.should.equal('Category');
-            return Q.resolve([{ns: 0, title: 'Page'}]);
+            return Promise.resolve([{ns: 0, title: 'Page'}]);
           }
         );
 
@@ -164,7 +164,7 @@ describe('get page views', function() {
           pageViewsCollector, 'getPagesInCategory',
           function(categoryTitle) {
             categoryTitle.should.equal('Category');
-            return Q.resolve(
+            return Promise.resolve(
               [{ns: 0, title: 'Page'}, {ns: 0, title: 'Page1'}]);
           }
         );
@@ -191,7 +191,7 @@ describe('get page views', function() {
           pageViewsCollector, 'getPagesInCategory',
           function(categoryTitle) {
             categoryTitle.should.equal('Category');
-            return Q.resolve(
+            return Promise.resolve(
               [{ns: 0, title: 'Page'}, {ns: 1, title: 'Page1'}]);
           }
         );
@@ -219,11 +219,11 @@ describe('get page views', function() {
         pageViewsCollector, 'getPagesInCategory',
         function(categoryTitle) {
           if (categoryTitle === 'Category') {
-            return Q.resolve(
+            return Promise.resolve(
               [{ns: 0, title: 'Page'}, {ns: 14, title: 'Category:SubCategory'}]);
           } else {
             categoryTitle.should.equal('SubCategory');
-            return Q.resolve(
+            return Promise.resolve(
               [{ns: 0, title: 'Page1'}]);
           }
         }
@@ -251,7 +251,7 @@ describe('get page views', function() {
         pageViewsCollector, 'getPagesInCategory',
         function(categoryTitle) {
           categoryTitle.should.equal('Category');
-          return Q.resolve([{ns: 0, title: 'Page'}]);
+          return Promise.resolve([{ns: 0, title: 'Page'}]);
         }
       );
 

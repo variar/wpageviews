@@ -1,5 +1,5 @@
 var WikiBot = require('nodemw');
-var Q = require('q');
+var Promise = require('bluebird');
 var axios = require('axios');
 var urlencode = require('urlencode');
 var Random = require('random-js');
@@ -7,7 +7,7 @@ var Random = require('random-js');
 var getPageViews = function(collector, page) {
   var delay = collector.getRandomDelay();
   console.log('Gettings satats for page %s, delay: %d', page.title, delay);
-  return Q.delay(delay).
+  return Promise.delay(delay).
   then(function() {
     return axios.get(collector.statsEndpoint + urlencode(page.title))
   })
@@ -25,7 +25,7 @@ var getPageViews = function(collector, page) {
     .reduce(function(a, b) {return a + b;});
 
     page.views = totalViews;
-    return Q.resolve({
+    return Promise.resolve({
       title: page.title,
       views: totalViews,
       categories: page.categories
@@ -67,10 +67,10 @@ var getPageViewsInCategory = function(collector, category) {
       subcategoryPromises.push(getPageViewsInCategory(collector, page));
     });
 
-    return [Q.all(pagePromises), Q.all(subcategoryPromises)];
+    return [Promise.all(pagePromises), Promise.all(subcategoryPromises)];
   })
   .spread(function(pageViews, pageViewsInCategory) {
-    return Q.resolve(
+    return Promise.resolve(
       pageViewsInCategory.reduce(
         function(a, b) {return a.concat(b);},
         pageViews));
@@ -102,9 +102,8 @@ function PageViewsCollector(params) {
   this.statsEndpoint = 'http://stats.grok.se/json/' + lang + latest;
   this.statsPeriod = period;
 
-  this.getPagesInCategory = Q.nbind(
-    this.wikiClient.getPagesInCategory,
-    this.wikiClient);
+  this.getPagesInCategory = Promise.promisify(
+    this.wikiClient.getPagesInCategory, {context: this.wikiClient});
 
   this.randomEngine = Random.engines.mt19937().autoSeed();
 }
